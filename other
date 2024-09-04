@@ -1,1 +1,42 @@
 
+一、
+1、普通用户的DAC权限是无法修改系统配置，账户管理、针对内核、设备驱动等进行操作。这些高危操作需要root权限进行操作。
+2、普通用户使用DAC权限进行错误操作后，需要使用root权限进行恢复和管理。
+3、linux作为多用户，多任务的操作系统，需要一个大家长"root"进行管理。
+4、root账户可以用来修改系统，限制对系统资源的访问的权限。
+
+二、
+使用sticky对目录进行限制：1777
+
+三、
+   mkdir G1 G2 G3
+   sudo su 
+   groupadd G1
+   groupadd G2
+   groupadd G3
+   useradd  G1M1 -g G1    
+   useradd  G1M2 -g G1 
+   useradd  G1M3 -g G1
+   useradd  G2M1 -g G2    
+   useradd  G2M2 -g G2 
+   useradd  G2M3 -g G2 
+   useradd  G3M1 -g G3    
+   useradd  G3M2 -g G3
+   useradd  G3M3 -g G3
+   
+   setfacl -m G1
+
+
+mkdir -m 771 G1
+mkdir -m 771 G2
+mkdir -m 771 G3
+
+chown -R G1M1:G1 G1
+chown -R G2M1:G2 G2
+chown -R G3M1:G3 G3
+
+setfacl -R -d -m  g:G1:rx ./G2
+setfacl -R -d -m  g:G2:rx ./G3
+setfacl -R -d -m  u:G1M1:rx,u:G2M1:rx  ./G3
+setfacl -R -d -m  u:G1M1:rx,u:G3M1:rx  ./G2
+setfacl -R -d -m  u:G2M1:rx,u:G3M1:rx  ./G1 
